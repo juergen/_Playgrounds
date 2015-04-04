@@ -72,6 +72,23 @@ extension String {
 		return nil
 	}
 	
+	func leftPad(count:Int, pad:String) -> String {
+		if count > countElements(self) {
+			return (pad + self).leftPad(count, pad: pad)
+		}
+		return self
+	}
+	
+}
+
+extension Int {
+	func leftPad(count:Int, pad:String) -> String {
+		let intAsString = "\(self)"
+		if count > countElements(intAsString)  {
+			return (pad + intAsString).leftPad(count, pad: pad)
+		}
+		return intAsString
+	}
 }
 
 // set default timezone
@@ -124,24 +141,56 @@ enum Tide: String {
 	case Low = "Low"
 }
 
+enum Moon: String {
+	case FullMoon = "Full Moon"
+	case LastQuarter = "Last Quarter"
+	case NewMoon = "New Moon"
+	case FirstQuarter = "First Quarter"
+}
+
 func p(printMe: Any) {
 	println("\(printMe)")
 }
 
-func parseTide(dayString: String, timeAndTide: String, tide: Tide) {
+class MeterPoint {
+	var level: Float?
+	var date: NSDate?
+	var tide:Tide?
+	var moon:Moon?
+	
+	init(level:Float, date:NSDate, tide:Tide) {
+		self.level = level
+		self.date = date
+		self.tide = tide
+	}
+	
+	func display() -> String {
+		return "\(date!) \(level!) \(tide!.rawValue) " + (moon?.rawValue ?? "")
+		
+	}
+}
+
+class Checkpoint {
+	var meterPoints: [MeterPoint] = []
+}
+
+func parseTide(dayString: String, timeAndTide: String, tide: Tide) -> MeterPoint? {
 	if let time = timeAndTide.substringBefore(" EST") {
 		if let dateTime = (dayString + " " + time).parseDate(pattern) {
 			if let tideString = timeAndTide.substringBetweenExclude("/ ", last: " ft") {
 				if let level = tideString.toFloat() {
-					println("\(dateTime) tide: \(level) \(tide.rawValue)")
+					//println("\(dateTime) tide: \(level) \(tide.rawValue)")
+					return MeterPoint(level: level, date: dateTime, tide:tide)
 				}
 			}
 		}
 	}
-	
+	return nil
 }
 
-func parseLine(line:String) {
+
+
+func parseLine(checkpoint:Checkpoint, line:String) {
 	//println("\(index) \(line)")
 	let elements = line.spit("\t")
 	for element in elements {
@@ -150,6 +199,7 @@ func parseLine(line:String) {
 	println("")
 	
 	var dayString = yearMonth
+	
 	for (index, element) in enumerate(elements) {
 		
 		switch headers[index] {
@@ -158,21 +208,48 @@ func parseLine(line:String) {
 			dayString = yearMonth + element.substringFromIndex(4)
 			
 		case "High":
-			parseTide(dayString, element, Tide.High)
+			if let meterPoint = parseTide(dayString, element, Tide.High) {
+				checkPoint.meterPoints.append(meterPoint)
+			}
 			
 		case "Low":
-			parseTide(dayString, element, Tide.Low)
+			if let meterPoint = parseTide(dayString, element, Tide.Low) {
+				checkPoint.meterPoints.append(meterPoint)
+			}
 			
-		case "Moon":
-			()
+		case let "Moon":
+			checkPoint.meterPoints.last?.moon = Moon(rawValue: element)
 			
 		default:
 			()
 		}
 	}
-	
 }
 
+var checkPoint = Checkpoint()
+
 for (index, line) in enumerate(info.spit("\n")) {
-	parseLine(line)
+	parseLine(checkPoint, line)
+}
+
+var previous:MeterPoint?
+
+for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
+	if index == 0 {
+		println("\(meterPoint.display())")
+		previous = meterPoint
+		continue
+	}
+	var levelDif: Float = meterPoint.level! - previous!.level!
+	var timeDif: Int = Int(meterPoint.date!.timeIntervalSince1970 - previous!.date!.timeIntervalSince1970)
+	var hours = timeDif / 3600
+	if (hours > 0) {
+		var hourSeconds = hours * 3600
+		timeDif = timeDif - hourSeconds
+	}
+	var minutes = timeDif / 60
+	let timeDifInfo = "  " + hours.leftPad(2, pad: "0") + ":" + minutes.leftPad(2, pad: "0")
+	println("  \(timeDifInfo)  \(levelDif)")
+	println("\(meterPoint.display())")
+	previous = meterPoint
 }
