@@ -4,8 +4,13 @@ import UIKit
 import Foundation
 
 extension String {
-	func spit(separator:String) -> [NSString] {
+	
+	func split(separator:String) -> [NSString] {
 		return self.componentsSeparatedByString(separator) as [NSString]
+	}
+	
+	func split(separator:String) -> [String] {
+		return self.componentsSeparatedByString(separator) as [String]
 	}
 	
 	func trim() -> String {
@@ -102,7 +107,7 @@ println("\(testParse.parseDate(pattern))")
 // Day	High	Low	High	Low	High	Moon
 let header: String = "Day\tHigh\tLow\tHigh\tLow\tHigh\tMoon"
 
-let headers  = header.spit("\t")
+let headers  = header.split("\t")
 
 let info: String =
 "Sun 1\t6:29 AM EST / 3.11 ft\t12:50 PM EST / 0.77 ft\t6:41 PM EST / 2.69 ft\t\t\t\n" +
@@ -192,7 +197,7 @@ func parseTide(dayString: String, timeAndTide: String, tide: Tide) -> MeterPoint
 
 func parseLine(checkpoint:Checkpoint, line:String) {
 	//println("\(index) \(line)")
-	let elements = line.spit("\t")
+	let elements = line.split("\t")
 	for element in elements {
 		print("\(element) | ")
 	}
@@ -228,7 +233,7 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 
 var checkPoint = Checkpoint()
 
-for (index, line) in enumerate(info.spit("\n")) {
+for (index, line) in enumerate(info.split("\n")) {
 	parseLine(checkPoint, line)
 }
 
