@@ -129,12 +129,12 @@ extension String {
 	
 }
 
-let ONLINE = true
+let ONLINE = false
 
 if ONLINE {
-	println("\n**************** WE ARE ONLINE ****************\n")
+	println("\n**************** WE ARE ONLINE (see let ONLINE = \(ONLINE)) ****************\n")
 } else {
-	println("\n**************** WE ARE OFFLINE ****************\n")
+	println("\n**************** WE ARE OFFLINE (see let ONLINE = \(ONLINE)) ****************\n")
 }
 
 
@@ -143,10 +143,10 @@ let demoData =
 	"\"2015-04-01 00:30\";80,10;Rohdaten\n" +
 	"\"2015-04-01 00:45\";78,70;Rohdaten\n" +
 	"\"2015-04-01 01:00\";;Rohdaten\n" +
-	"\"2015-04-01 01:15\";80,10;Rohdaten\n" +
-	"\"2015-04-01 01:30\";81,60;Rohdaten\n" +
-	"\"2015-04-01 01:45\";81,60;Rohdaten\n" +
-"\"2015-04-01 02:00\";;Rohdaten\n"
+	"\"2015-04-01 14:15\";80,10;Rohdaten\n" +
+	"\"2015-04-01 14:30\";81,60;Rohdaten\n" +
+	"\"2015-04-01 14:45\";81,60;Rohdaten\n" +
+"\"2015-04-01 15:00\";;Rohdaten\n"
 
 class MeterPoint {
 	var level: Float?
