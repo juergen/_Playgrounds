@@ -8,6 +8,9 @@ import XCPlayground
 
 XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
 
+// set default timezone
+NSTimeZone.setDefaultTimeZone(NSTimeZone(forSecondsFromGMT: +0))
+
 extension String {
 	
 	func split(separator:String) -> [NSString] {
@@ -167,7 +170,7 @@ class Checkpoint {
 func parseLine(checkpoint:Checkpoint, line:String) {
 	println("will parse: \(line)")
 	let elements: [String] = line.split(";")
-	if let date = elements[0].parseDate("\"yyyy-MM-dd hh:mm\"") {
+	if let date = elements[0].parseDate("\"yyyy-MM-dd HH:mm\"") {
 		if let value = elements[1].toFloat() {
 			checkpoint.meterPoints.append(MeterPoint(level: value, date: date))
 		}
@@ -198,7 +201,7 @@ if !ONLINE {
 // wasserstand
 // abfluss
 
-let url = NSURL(string: "http://www.gkd.bayern.de/fluesse/download/index.php?wertart=ezw&beginn=06.04.2015&ende=07.04.2015&msnr=16005701&prbstnr=&thema=gkd&rubrik=fluesse&produkt=abfluss&parameter=&mpnr1=&mpnr2=&dl=Download")
+let url = NSURL(string: "http://www.gkd.bayern.de/fluesse/download/index.php?wertart=ezw&beginn=05.04.2015&ende=07.04.2015&msnr=16005701&prbstnr=&thema=gkd&rubrik=fluesse&produkt=abfluss&parameter=&mpnr1=&mpnr2=&dl=Download")
 let session = NSURLSession.sharedSession()
 
 let task = session.dataTaskWithURL(url!) {(data, response, error) in
