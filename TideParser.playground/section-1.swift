@@ -107,7 +107,7 @@ println("\(testParse.parseDate(pattern))")
 // Day	High	Low	High	Low	High	Moon
 let header: String = "Day\tHigh\tLow\tHigh\tLow\tHigh\tMoon"
 
-let headers  = header.split("\t")
+let headers: [String]  = header.split("\t")
 
 let info: String =
 "Sun 1\t6:29 AM EST / 3.11 ft\t12:50 PM EST / 0.77 ft\t6:41 PM EST / 2.69 ft\t\t\t\n" +
@@ -197,20 +197,20 @@ func parseTide(dayString: String, timeAndTide: String, tide: Tide) -> MeterPoint
 
 func parseLine(checkpoint:Checkpoint, line:String) {
 	//println("\(index) \(line)")
-	let elements = line.split("\t")
+	let elements: [String] = line.split("\t")
 	for element in elements {
 		print("\(element) | ")
 	}
 	println("")
 	
-	var dayString = yearMonth
+	var dayString: String = yearMonth
 	
 	for (index, element) in enumerate(elements) {
 		
 		switch headers[index] {
 			
 		case "Day":
-			dayString = yearMonth + element.substringFromIndex(4)
+			dayString = yearMonth + (element as NSString).substringFromIndex(4)
 			
 		case "High":
 			if let meterPoint = parseTide(dayString, element, Tide.High) {
