@@ -77,9 +77,9 @@ extension String {
 		return nil
 	}
 	
-	func leftPad(count:Int, pad:String) -> String {
-		if count > countElements(self) {
-			return (pad + self).leftPad(count, pad: pad)
+	func leftPad(c:Int, pad:String) -> String {
+		if c > count(self) {
+			return (pad + self).leftPad(c, pad: pad)
 		}
 		return self
 	}
@@ -87,10 +87,10 @@ extension String {
 }
 
 extension Int {
-	func leftPad(count:Int, pad:String) -> String {
+	func leftPad(c:Int, pad:String) -> String {
 		let intAsString = "\(self)"
-		if count > countElements(intAsString)  {
-			return (pad + intAsString).leftPad(count, pad: pad)
+		if c > count(intAsString)  {
+			return (pad + intAsString).leftPad(c, pad: pad)
 		}
 		return intAsString
 	}
