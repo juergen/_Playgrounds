@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
   func spit(separator:String) -> [NSString] {
     return self.componentsSeparatedByString(separator) as [NSString]
   }
@@ -78,7 +78,7 @@ extension String {
   
 }
 
-extension Int {
+public extension Int {
   func leftPad(count:Int, pad:String) -> String {
     let intAsString = "\(self)" as String
     if count > intAsString.characters.count  {
