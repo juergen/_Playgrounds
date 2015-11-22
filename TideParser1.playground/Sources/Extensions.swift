@@ -6,9 +6,9 @@ import Foundation
 
 public extension String {
   
-  func split(separator:String) -> [NSString] {
-    return self.componentsSeparatedByString(separator) as [NSString]
-  }
+//  func split(separator:String) -> [NSString] {
+//    return self.componentsSeparatedByString(separator) as [NSString]
+//  }
   
   func split(separator:String) -> [String] {
     return self.componentsSeparatedByString(separator) as [String]
@@ -18,8 +18,8 @@ public extension String {
     return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
   }
   
-  func parseDate(_ format:String="yyyy-MM-dd") -> NSDate? {
-    var dateFmt = NSDateFormatter()
+  func parseDate(format:String="yyyy-MM-dd") -> NSDate? {
+    let dateFmt = NSDateFormatter()
     dateFmt.timeZone = NSTimeZone.defaultTimeZone() //NSTimeZone.localTimeZone()
     dateFmt.dateFormat = format
     if let date = dateFmt.dateFromString(self) {
@@ -79,7 +79,7 @@ public extension String {
   }
   
   func leftPad(c:Int, pad:String) -> String {
-    if c > count(self) {
+    if c > self.characters.count {
       return (pad + self).leftPad(c, pad: pad)
     }
     return self
@@ -90,7 +90,7 @@ public extension String {
 public extension Int {
   func leftPad(c:Int, pad:String) -> String {
     let intAsString = "\(self)"
-    if c > count(intAsString)  {
+    if c > intAsString.characters.count  {
       return (pad + intAsString).leftPad(c, pad: pad)
     }
     return intAsString

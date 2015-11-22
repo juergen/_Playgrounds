@@ -1,13 +1,13 @@
-// Playground - noun: a place where people can play
+// Tide Parser with inline extensions and functions
 
 import UIKit
 import Foundation
 
 extension String {
 	
-	func split(separator:String) -> [NSString] {
-		return self.componentsSeparatedByString(separator) as [NSString]
-	}
+//	func split(separator:String) -> [NSString] {
+//		return self.componentsSeparatedByString(separator) as [NSString]
+//	}
 	
 	func split(separator:String) -> [String] {
 		return self.componentsSeparatedByString(separator) as [String]
@@ -17,8 +17,8 @@ extension String {
 		return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
 	}
 	
-	func parseDate(_ format:String="yyyy-MM-dd") -> NSDate? {
-		var dateFmt = NSDateFormatter()
+	func parseDate(format:String="yyyy-MM-dd") -> NSDate? {
+		let dateFmt = NSDateFormatter()
 		dateFmt.timeZone = NSTimeZone.defaultTimeZone() //NSTimeZone.localTimeZone()
 		dateFmt.dateFormat = format
 		if let date = dateFmt.dateFromString(self) {
@@ -78,7 +78,7 @@ extension String {
 	}
 	
 	func leftPad(c:Int, pad:String) -> String {
-		if c > count(self) {
+		if c > self.characters.count {
 			return (pad + self).leftPad(c, pad: pad)
 		}
 		return self
@@ -89,7 +89,7 @@ extension String {
 extension Int {
 	func leftPad(c:Int, pad:String) -> String {
 		let intAsString = "\(self)"
-		if c > count(intAsString)  {
+		if c > intAsString.characters.count  {
 			return (pad + intAsString).leftPad(c, pad: pad)
 		}
 		return intAsString
@@ -102,7 +102,7 @@ NSTimeZone.setDefaultTimeZone(NSTimeZone(forSecondsFromGMT: +0))
 let yearMonth: String = "2015-02-"
 let testParse = yearMonth + "1 6:29 AM"
 let pattern = "yyyy-MM-dd h:mm a"
-println("\(testParse.parseDate(pattern))")
+print("\(testParse.parseDate(pattern))")
 
 // Day	High	Low	High	Low	High	Moon
 let header: String = "Day\tHigh\tLow\tHigh\tLow\tHigh\tMoon"
@@ -154,7 +154,7 @@ enum Moon: String {
 }
 
 func p(printMe: Any) {
-	println("\(printMe)")
+	print("\(printMe)")
 }
 
 class MeterPoint {
@@ -201,11 +201,11 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 	for element in elements {
 		print("\(element) | ")
 	}
-	println("")
+	print("")
 	
 	var dayString: String = yearMonth
 	
-	for (index, element) in enumerate(elements) {
+	for (index, element) in elements.enumerate() {
 		
 		switch headers[index] {
 			
@@ -213,16 +213,16 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 			dayString = yearMonth + (element as NSString).substringFromIndex(4)
 			
 		case "High":
-			if let meterPoint = parseTide(dayString, element, Tide.High) {
+			if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.High) {
 				checkPoint.meterPoints.append(meterPoint)
 			}
 			
 		case "Low":
-			if let meterPoint = parseTide(dayString, element, Tide.Low) {
+			if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.Low) {
 				checkPoint.meterPoints.append(meterPoint)
 			}
 			
-		case let "Moon":
+		case "Moon":
 			checkPoint.meterPoints.last?.moon = Moon(rawValue: element)
 			
 		default:
@@ -233,15 +233,15 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 
 var checkPoint = Checkpoint()
 
-for (index, line) in enumerate(info.split("\n")) {
-	parseLine(checkPoint, line)
+for (index, line) in info.split("\n").enumerate() {
+	parseLine(checkPoint, line: line)
 }
 
 var previous:MeterPoint?
 
-for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
+for (index, meterPoint) in checkPoint.meterPoints.enumerate() {
 	if index == 0 {
-		println("\(meterPoint.display())")
+		print("\(meterPoint.display())")
 		previous = meterPoint
 		continue
 	}
@@ -254,7 +254,7 @@ for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
 	}
 	var minutes = timeDif / 60
 	let timeDifInfo = "  " + hours.leftPad(2, pad: "0") + ":" + minutes.leftPad(2, pad: "0")
-	println("  \(timeDifInfo)  \(levelDif)")
-	println("\(meterPoint.display())")
+	print("  \(timeDifInfo)  \(levelDif)")
+	print("\(meterPoint.display())")
 	previous = meterPoint
 }

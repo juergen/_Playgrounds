@@ -6,7 +6,7 @@ import UIKit
 import Foundation
 import XCPlayground
 
-XCPSetExecutionShouldContinueIndefinitely(continueIndefinitely: true)
+XCPSetExecutionShouldContinueIndefinitely(true)
 
 // set default timezone
 NSTimeZone.setDefaultTimeZone(NSTimeZone(forSecondsFromGMT: +0))
@@ -45,32 +45,32 @@ extension String {
 	}
 	
 	func indexOfCharacter(char: Character) -> Bool {
-		if let idx = find(self, char) {
-			return distance(self.startIndex, idx) == 0
+		if let idx = self.characters.indexOf(char) {
+			return self.startIndex.distanceTo(idx) == 0
 		}
 		return false
 	}
 	
 	var length: Int {
 		get {
-			return countElements(self)
+			return self.characters.count
 		}
 	}
 	
 	func indexOf(target: String) -> Int {
-		var range = self.rangeOfString(target)
+		let range = self.rangeOfString(target)
 		if let range = range {
-			return distance(self.startIndex, range.startIndex)
+			return self.startIndex.distanceTo(range.startIndex)
 		} else {
 			return -1
 		}
 	}
 	
 	func indexOf(target: String, startIndex: Int) -> Int {
-		var startRange = advance(self.startIndex, startIndex)
-		var range = self.rangeOfString(target, options: NSStringCompareOptions.LiteralSearch, range: Range<String.Index>(start: startRange, end: self.endIndex))
+		let startRange = self.startIndex.advancedBy(startIndex)
+		let range = self.rangeOfString(target, options: NSStringCompareOptions.LiteralSearch, range: Range<String.Index>(start: startRange, end: self.endIndex))
 		if let range = range {
-			return distance(self.startIndex, range.startIndex)
+			return self.startIndex.distanceTo(range.startIndex)
 		} else {
 			return -1
 		}
@@ -95,13 +95,13 @@ extension String {
 	}
 	
 	func substringWithRange(range:Range<Int>) -> String {
-		let start = advance(self.startIndex, range.startIndex)
-		let end = advance(self.startIndex, range.endIndex)
+		let start = self.startIndex.advancedBy(range.startIndex)
+		let end = self.startIndex.advancedBy(range.endIndex)
 		return self.substringWithRange(start..<end)
 	}
 	
-	func parseDate(_ format:String="yyyy-MM-dd") -> NSDate? {
-		var dateFmt = NSDateFormatter()
+	func parseDate(format:String="yyyy-MM-dd") -> NSDate? {
+		let dateFmt = NSDateFormatter()
 		dateFmt.timeZone = NSTimeZone()
 		dateFmt.dateFormat = format
 		if let date = dateFmt.dateFromString(self) {
@@ -132,9 +132,9 @@ extension String {
 let ONLINE = false
 
 if ONLINE {
-	println("\n**************** WE ARE ONLINE (see let ONLINE = \(ONLINE)) ****************\n")
+	print("\n**************** WE ARE ONLINE (see let ONLINE = \(ONLINE)) ****************\n")
 } else {
-	println("\n**************** WE ARE OFFLINE (see let ONLINE = \(ONLINE)) ****************\n")
+	print("\n**************** WE ARE OFFLINE (see let ONLINE = \(ONLINE)) ****************\n")
 }
 
 
@@ -168,7 +168,7 @@ class Checkpoint {
 }
 
 func parseLine(checkpoint:Checkpoint, line:String) {
-	println("will parse: \(line)")
+	print("will parse: \(line)")
 	let elements: [String] = line.split(";")
 	if let date = elements[0].parseDate("\"yyyy-MM-dd HH:mm\"") {
 		if let value = elements[1].toFloat() {
@@ -181,10 +181,10 @@ let predicate: String -> Bool = { $0.startsWith("\"20") || $0.startsWith("\"19")
 
 func parse(checkPoint: Checkpoint, parseMe: String) {
 	
-	filter(parseMe.split("\n"), predicate).map {parseLine(checkPoint, $0)}
+	parseMe.split("\n").filter(predicate).map {parseLine(checkPoint, line: $0)}
 	
 	for meterpoint in checkpoint.meterPoints {
-		println("\(meterpoint.display())")
+		print("\(meterpoint.display())")
 	}
 	
 }
@@ -193,7 +193,7 @@ var checkpoint: Checkpoint = Checkpoint()
 
 // use next line to debug parser
 if !ONLINE {
-	parse(checkpoint, demoData)
+	parse(checkpoint, parseMe: demoData)
 }
 
 
@@ -205,13 +205,13 @@ let url = NSURL(string: "http://www.gkd.bayern.de/fluesse/download/index.php?wer
 let session = NSURLSession.sharedSession()
 
 let task = session.dataTaskWithURL(url!) {(data, response, error) in
-	if let data = NSString(data: data, encoding: NSUTF8StringEncoding) {
+	if let data = NSString(data: data!, encoding: NSUTF8StringEncoding) {
 		if let downloadUrl = (data as String).substringBetweenExclude(".innerHTML = 'Bitte <a href=\"", last: "\">hier</a> klicken falls Ihr Download") {
-			println("Will download values from: \(downloadUrl)\n")
+			print("Will download values from: \(downloadUrl)\n")
 			let downloadTask = session.dataTaskWithURL(NSURL(string: downloadUrl)!) {(data2, response, error) in
 				//println("\(NSString(data: data2, encoding: NSISOLatin1StringEncoding))")
-				if let downloadData = NSString(data: data2, encoding: NSISOLatin1StringEncoding) {
-					parse(checkpoint, downloadData)
+				if let downloadData = NSString(data: data2!, encoding: NSISOLatin1StringEncoding) {
+					parse(checkpoint, parseMe: downloadData as String)
 				}
 			}
 			downloadTask.resume()

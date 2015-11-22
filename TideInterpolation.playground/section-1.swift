@@ -8,9 +8,9 @@ let pi = M_PI
 
 extension String {
 	
-	func split(separator:String) -> [NSString] {
-		return self.componentsSeparatedByString(separator) as [NSString]
-	}
+//	func split(separator:String) -> [NSString] {
+//		return self.componentsSeparatedByString(separator) as [NSString]
+//	}
 	
 	func split(separator:String) -> [String] {
 		return self.componentsSeparatedByString(separator) as [String]
@@ -20,8 +20,8 @@ extension String {
 		return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
 	}
 	
-	func parseDate(_ format:String="yyyy-MM-dd") -> NSDate? {
-		var dateFmt = NSDateFormatter()
+	func parseDate(format:String="yyyy-MM-dd") -> NSDate? {
+		let dateFmt = NSDateFormatter()
 		dateFmt.timeZone = NSTimeZone.defaultTimeZone() //NSTimeZone.localTimeZone()
 		dateFmt.dateFormat = format
 		if let date = dateFmt.dateFromString(self) {
@@ -81,7 +81,7 @@ extension String {
 	}
 	
 	func leftPad(count:Int, pad:String) -> String {
-		if count > countElements(self) {
+		if count > self.characters.count {
 			return (pad + self).leftPad(count, pad: pad)
 		}
 		return self
@@ -92,7 +92,7 @@ extension String {
 extension Int {
 	func leftPad(count:Int, pad:String) -> String {
 		let intAsString = "\(self)"
-		if count > countElements(intAsString)  {
+		if count > intAsString.characters.count  {
 			return (pad + intAsString).leftPad(count, pad: pad)
 		}
 		return intAsString
@@ -136,7 +136,7 @@ enum Moon: String {
 	case FirstQuarter = "First Quarter"
 }
 
-class MeterPoint : Printable {
+class MeterPoint : CustomStringConvertible {
 	var level: Float?
 	var date: NSDate?
 	var tide:Tide?
@@ -181,7 +181,7 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 	
 	var dayString: String = yearMonth
 	
-	for (index, element) in enumerate(elements) {
+	for (index, element) in elements.enumerate() {
 		
 		switch headers[index] {
 			
@@ -189,16 +189,16 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 			dayString = yearMonth + (element as NSString).substringFromIndex(4)
 			
 		case "High":
-			if let meterPoint = parseTide(dayString, element, Tide.High) {
+			if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.High) {
 				checkPoint.meterPoints.append(meterPoint)
 			}
 			
 		case "Low":
-			if let meterPoint = parseTide(dayString, element, Tide.Low) {
+			if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.Low) {
 				checkPoint.meterPoints.append(meterPoint)
 			}
 			
-		case let "Moon":
+		case "Moon":
 			checkPoint.meterPoints.last?.moon = Moon(rawValue: element)
 			
 		default:
@@ -209,13 +209,13 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 
 var checkPoint = Checkpoint()
 
-for (index, line) in enumerate(info.split("\n")) {
-	parseLine(checkPoint, line)
+for (index, line) in (info.split("\n")).enumerate() {
+	parseLine(checkPoint, line: line)
 }
 
 var previous:MeterPoint?
 
-for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
+for (index, meterPoint) in checkPoint.meterPoints.enumerate() {
 	if index == 0 {
 		previous = meterPoint
 		continue
@@ -236,7 +236,7 @@ for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
 
 func interpolatedHeight(d : NSDate, tideData: Checkpoint) -> Float? {
     let tidesFiltered = { (predicate : (NSTimeInterval -> Bool)) -> [MeterPoint] in
-        filter(tideData.meterPoints, {(meterPoint: MeterPoint) -> Bool in
+        tideData.meterPoints.filter({(meterPoint: MeterPoint) -> Bool in
             if let dt = meterPoint.date?.timeIntervalSinceDate(d) {
                 return predicate(dt)
             } else {
@@ -247,7 +247,7 @@ func interpolatedHeight(d : NSDate, tideData: Checkpoint) -> Float? {
     
     let tidesSortedByAbsTimeDiffToReferenceDate = {
         (referenceDate: NSDate, tideList : [MeterPoint]) -> [MeterPoint] in
-        sorted(tideList, { (m0: MeterPoint, m1: MeterPoint) -> Bool in
+        tideList.sort( { (m0: MeterPoint, m1: MeterPoint) -> Bool in
                 let dt0 = abs(m0.date!.timeIntervalSinceDate(referenceDate))
                 let dt1 = abs(m1.date!.timeIntervalSinceDate(referenceDate))
                 return  dt0 < dt1
@@ -276,25 +276,25 @@ func interpolatedHeight(d : NSDate, tideData: Checkpoint) -> Float? {
             let height_interpolated : Float = height_average+0.5*height_diff*Float(cos(dt_beforeToNow/dt_beforeToAfter*pi))
     
             return height_interpolated
-        }
+      }
     }
     
-    println("error: Not enough data in meterPoints of checkPoint \(tideData) to interpolate tide at date \(d)")
+    print("error: Not enough data in meterPoints of checkPoint \(tideData) to interpolate tide at date \(d)")
     return nil
 }
 
 func print_tides() {
-    map(checkPoint.meterPoints, { println($0.description) })
+    checkPoint.meterPoints.map({ print($0.description) })
 }
 
 
 print_tides()
 var d = "2015-02-05 18:03".parseDate("yyyy-MM-dd HH:mm")
-println("height: for date \(d!): \(interpolatedHeight(d!, checkPoint))")
+print("height: for date \(d!): \(interpolatedHeight(d!, tideData: checkPoint))")
 
 let startDate = "2015-02-05 18:03".parseDate("yyyy-MM-dd HH:mm")
 
 for var dt_hours: Double = 0; dt_hours<93; dt_hours+=1 {
-    XCPCaptureValue("h",interpolatedHeight(startDate!.dateByAddingTimeInterval(dt_hours*3600.0), checkPoint)!)
+     XCPCaptureValue("h",value: interpolatedHeight(startDate!.dateByAddingTimeInterval(dt_hours*3600.0), tideData: checkPoint)!)
 }
 

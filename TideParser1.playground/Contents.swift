@@ -1,4 +1,6 @@
-// Playground - noun: a place where people can play
+// 
+// Tide Parser with Sources (Extensions, Functions, Domains etc.)
+//
 
 import UIKit
 import Foundation
@@ -9,7 +11,7 @@ NSTimeZone.setDefaultTimeZone(NSTimeZone(forSecondsFromGMT: +0))
 let yearMonth: String = "2015-02-"
 let testParse = yearMonth + "1 6:29 AM"
 let pattern = "yyyy-MM-dd h:mm a"
-println("\(testParse.parseDate(pattern))")
+print("\(testParse.parseDate(pattern))")
 
 // Day	High	Low	High	Low	High	Moon
 let header: String = "Day\tHigh\tLow\tHigh\tLow\tHigh\tMoon"
@@ -20,16 +22,16 @@ let headers: [String]  = header.split("\t")
 
 
 func parseLine(checkpoint:Checkpoint, line:String) {
-  //println("\(index) \(line)")
+  //print("\(index) \(line)")
   let elements: [String] = line.split("\t")
 //  for element in elements {
-//    print("\(element) | ")
+//    print("\(element)", separator:" | ")
 //  }
-//  println("")
+//  print("")
   
   var dayString: String = yearMonth
   
-  for (index, element) in enumerate(elements) {
+  for (index, element) in elements.enumerate() {
     
     switch headers[index] {
       
@@ -37,16 +39,16 @@ func parseLine(checkpoint:Checkpoint, line:String) {
       dayString = yearMonth + (element as NSString).substringFromIndex(4)
       
     case "High":
-      if let meterPoint = parseTide(dayString, element, Tide.High) {
+      if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.High) {
         checkPoint.meterPoints.append(meterPoint)
       }
       
     case "Low":
-      if let meterPoint = parseTide(dayString, element, Tide.Low) {
+      if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.Low) {
         checkPoint.meterPoints.append(meterPoint)
       }
       
-    case let "Moon":
+    case "Moon":
       checkPoint.meterPoints.last?.moon = Moon(rawValue: element)
       
     default:
@@ -57,15 +59,15 @@ func parseLine(checkpoint:Checkpoint, line:String) {
 
 var checkPoint = Checkpoint()
 
-for (index, line) in enumerate(info.split("\n")) {
-  parseLine(checkPoint, line)
+for (index, line) in info.split("\n").enumerate() {
+  parseLine(checkPoint, line: line)
 }
 
 var previous:MeterPoint?
 
-for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
+for (index, meterPoint) in checkPoint.meterPoints.enumerate() {
   if index == 0 {
-    println("\(meterPoint.display())")
+    print("\(meterPoint.display())")
     previous = meterPoint
     continue
   }
@@ -78,8 +80,8 @@ for (index, meterPoint) in enumerate(checkPoint.meterPoints) {
   }
   var minutes = timeDif / 60
   let timeDifInfo = "  " + hours.leftPad(2, pad: "0") + ":" + minutes.leftPad(2, pad: "0")
-  println("  \(timeDifInfo)  \(levelDif)")
-  println("\(meterPoint.display())")
+  print("  \(timeDifInfo)  \(levelDif)")
+  print("\(meterPoint.display())")
   previous = meterPoint
 }
 

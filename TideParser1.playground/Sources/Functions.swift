@@ -1,7 +1,7 @@
 import Foundation
 
 public func p(printMe: Any) {
-  println("\(printMe)")
+  print("\(printMe)")
 }
 
 public func parseTide(dayString: String, timeAndTide: String, tide: Tide) -> MeterPoint? {
