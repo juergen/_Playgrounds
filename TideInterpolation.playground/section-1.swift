@@ -295,6 +295,7 @@ print("height: for date \(d!): \(interpolatedHeight(d!, tideData: checkPoint))")
 let startDate = "2015-02-05 18:03".parseDate("yyyy-MM-dd HH:mm")
 
 for var dt_hours: Double = 0; dt_hours<93; dt_hours+=1 {
-     XCPCaptureValue("h",value: interpolatedHeight(startDate!.dateByAddingTimeInterval(dt_hours*3600.0), tideData: checkPoint)!)
+  let value = interpolatedHeight(startDate!.dateByAddingTimeInterval(dt_hours*3600.0), tideData: checkPoint)!
+  XCPlaygroundPage.currentPage.captureValue(value, withIdentifier:"h")
 }
 
