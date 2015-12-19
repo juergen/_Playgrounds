@@ -1,5 +1,10 @@
 import Foundation
 
+
+// ----------------------------------------------------------------------------------------------------
+// MARK: - String
+// ----------------------------------------------------------------------------------------------------
+
 public extension String {
   
   func split(separator:String) -> [NSString] {
@@ -116,4 +121,92 @@ public extension String {
     return (NSString(string: s).floatValue)
   }
   
+}
+
+
+// ----------------------------------------------------------------------------------------------------
+// MARK: - NSDate
+// ----------------------------------------------------------------------------------------------------
+
+public extension NSDate {
+  
+  // MARK: - private API
+  
+  private func addComponents(seconds s: Int, minutes m: Int, hours h: Int, days d: Int, weeks w: Int, months M: Int, years y: Int) -> NSDate {
+    let comp:NSDateComponents = NSDateComponents()
+    comp.second = s
+    comp.minute = m
+    comp.hour = h
+    comp.day = d
+    comp.weekOfYear = w
+    comp.month = M
+    comp.year = y
+    return NSCalendar.currentCalendar().dateByAddingComponents(comp, toDate: self, options: [])!
+  }
+  
+  // MARK: - to String
+  
+  func formattedString(format:String="yyyy-MM-dd_HH-mm") -> String {
+    let dateStringFormatter = NSDateFormatter()
+    dateStringFormatter.dateFormat = format
+    return dateStringFormatter.stringFromDate(self)
+  }
+  
+  // MARK: - before / after
+  
+  func isBefore(date: NSDate) -> Bool {
+    return self.earlierDate(date) == self
+  }
+  
+  func isAfter(date: NSDate) -> Bool {
+    return self.laterDate(date) == self
+  }
+  
+  func isBeforeOptional(date: NSDate?, fallBack:Bool) -> Bool {
+    if let d = date {
+      return self.earlierDate(d) == self
+    }
+    return fallBack
+  }
+  
+  func isAfterOptional(date: NSDate?, fallBack:Bool) -> Bool {
+    if let d = date {
+      return self.laterDate(d) == self
+    }
+    return fallBack
+  }
+  
+  // MARK: - plus / minus
+  
+  public func plusMinutes(m: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: Int(m), hours: 0, days: 0, weeks: 0, months: 0, years: 0)
+  }
+  
+  public func minusMinutes(m: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: -Int(m), hours: 0, days: 0, weeks: 0, months: 0, years: 0)
+  }
+  
+  public func plusHours(h: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: 0, hours: Int(h), days: 0, weeks: 0, months: 0, years: 0)
+  }
+  
+  public func minusHours(h: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: 0, hours: -Int(h), days: 0, weeks: 0, months: 0, years: 0)
+  }
+  
+  public func plusDays(d: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: 0, hours: 0, days: Int(d), weeks: 0, months: 0, years: 0)
+  }
+  
+  public func minusDays(d: Int) -> NSDate {
+    return self.addComponents(seconds: 0, minutes: 0, hours: 0, days: -Int(d), weeks: 0, months: 0, years: 0)
+  }
+  
+  public func withoutTime(date:NSDate) -> NSDate {
+    return NSCalendar.currentCalendar().dateBySettingHour(0, minute: 0, second: 0, ofDate: self, options: NSCalendarOptions())!
+  }
+  
+  class public func nowWithoutTime() -> NSDate {
+    return NSCalendar.currentCalendar().dateBySettingHour(0, minute: 0, second: 0, ofDate: NSDate(), options: NSCalendarOptions())!
+  }
 }

@@ -89,7 +89,14 @@ let wasserstand:String = "wasserstand"
 let abfluss:String = "abfluss"
 let produkt:String = wasserstand
 
-let url = NSURL(string: "http://www.gkd.bayern.de/fluesse/download/index.php?wertart=ezw&beginn=10.12.2015&ende=16.12.2015&msnr=16005701&prbstnr=&thema=gkd&rubrik=fluesse&produkt=\(produkt)&parameter=&mpnr1=&mpnr2=&dl=Download")
+
+let now = NSDate()
+let endDate = now.plusDays(1)
+let endDateString = endDate.formattedString("dd.MM.yyyy")
+let beginDate = endDate.minusDays(7)
+let beginDateString = beginDate.formattedString("dd.MM.yyyy")
+
+let url = NSURL(string: "http://www.gkd.bayern.de/fluesse/download/index.php?wertart=ezw&beginn=\(beginDateString)&ende=\(endDateString)&msnr=16005701&prbstnr=&thema=gkd&rubrik=fluesse&produkt=\(produkt)&parameter=&mpnr1=&mpnr2=&dl=Download")
 let session = NSURLSession.sharedSession()
 
 let task = session.dataTaskWithURL(url!) {(data, response, error) in
