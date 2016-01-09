@@ -8,80 +8,29 @@ import Foundation
 // set default timezone
 NSTimeZone.setDefaultTimeZone(NSTimeZone(forSecondsFromGMT: +0))
 
-let yearMonth: String = "2015-02-"
+let yearMonth: String = "2016-02-"
 let testParse = yearMonth + "1 6:29 AM"
 let pattern = "yyyy-MM-dd h:mm a"
 print("\(testParse.parseDate(pattern))")
 
-// Day	High	Low	High	Low	High	Moon
-let header: String = "Day\tHigh\tLow\tHigh\tLow\tHigh\tMoon"
+//for (index, line) in info.split("\n").enumerate() {
+//  parseLine(eleutheraWestCost, line: line)
+//}
 
-let headers: [String]  = header.split("\t")
-
-//println(info)
-
-
-func parseLine(checkpoint:Checkpoint, line:String) {
-  //print("\(index) \(line)")
-  let elements: [String] = line.split("\t")
-//  for element in elements {
-//    print("\(element)", separator:" | ")
-//  }
-//  print("")
-  
-  var dayString: String = yearMonth
-  
-  for (index, element) in elements.enumerate() {
-    
-    switch headers[index] {
-      
-    case "Day":
-      dayString = yearMonth + (element as NSString).substringFromIndex(4)
-      
-    case "High":
-      if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.High) {
-        checkPoint.meterPoints.append(meterPoint)
-      }
-      
-    case "Low":
-      if let meterPoint = parseTide(dayString, timeAndTide: element, tide: Tide.Low) {
-        checkPoint.meterPoints.append(meterPoint)
-      }
-      
-    case "Moon":
-      checkPoint.meterPoints.last?.moon = Moon(rawValue: element)
-      
-    default:
-      ()
-    }
-  }
+var eleutheraWestCost = Checkpoint()
+print("Eleuthera Tide Table February, 2016, 25.2500° N, 76.3167° W (West coast)")
+westFeb2016.forEach {
+  parseLine(yearMonth, pattern: pattern, checkpoint: eleutheraWestCost, line: $0)
+  // print($0.split("\t").count, $0)
 }
+printCheckpoint(eleutheraWestCost)
 
-var checkPoint = Checkpoint()
+print("\n\n")
 
-for (index, line) in info.split("\n").enumerate() {
-  parseLine(checkPoint, line: line)
+var eleutheraEastCost = Checkpoint()
+print("Eleuthera Tide Table February, 2016, 24.9333° N, 76.1500° W (East coast)")
+eastFeb2016.forEach {
+  parseLine(yearMonth, pattern: pattern, checkpoint: eleutheraEastCost, line: $0)
+  // print($0.split("\t").count, $0)
 }
-
-var previous:MeterPoint?
-
-for (index, meterPoint) in checkPoint.meterPoints.enumerate() {
-  if index == 0 {
-    print("\(meterPoint.display())")
-    previous = meterPoint
-    continue
-  }
-  var levelDif: Float = meterPoint.level! - previous!.level!
-  var timeDif: Int = Int(meterPoint.date!.timeIntervalSince1970 - previous!.date!.timeIntervalSince1970)
-  var hours = timeDif / 3600
-  if (hours > 0) {
-    var hourSeconds = hours * 3600
-    timeDif = timeDif - hourSeconds
-  }
-  var minutes = timeDif / 60
-  let timeDifInfo = "  " + hours.leftPad(2, pad: "0") + ":" + minutes.leftPad(2, pad: "0")
-  print("  \(timeDifInfo)  \(levelDif)")
-  print("\(meterPoint.display())")
-  previous = meterPoint
-}
-
+printCheckpoint(eleutheraEastCost)
